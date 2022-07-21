@@ -11,7 +11,7 @@ export const getMongoDbConfig = async (
 };
 
 const getMongoString = (configService: ConfigService) =>
-  'mongodb://docker:mongopw@localhost:49157';
+  'mongodb://docker:mongopw@localhost:49153';
 //todo fix mdb connect
 //todo fix mdb connect
 //todo fix mdb connect

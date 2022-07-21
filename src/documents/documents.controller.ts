@@ -8,11 +8,13 @@ import {
   Delete,
   UsePipes,
   ValidationPipe,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Auth } from 'src/auth/common/decorators/auth.decorator';
 import { DocumentsService } from './documents.service';
 import { CreateDocumentDto } from './dto/create-document.dto';
 import { UpdateDocumentDto } from './dto/update-document.dto';
+import { FindPassportDto } from './dto/find-document.dto';
 
 @Controller('pass')
 export class DocumentsController {
@@ -25,10 +27,10 @@ export class DocumentsController {
     return this.documentsService.create(dto);
   }
 
-  @Get()
+  @Post('allpass')
   @Auth('manager')
-  findAll() {
-    return this.documentsService.findAll();
+  findAll(@Body() dto: FindPassportDto) {
+    return this.documentsService.findAll(dto);
   }
 
   @Get(':id')
@@ -46,5 +48,10 @@ export class DocumentsController {
   @Auth('manager')
   remove(@Param('id') id: string) {
     return this.documentsService.remove(+id);
+  }
+
+  @Get('poisk/:text')
+  async test(@Param('text') text: string) {
+    return this.documentsService.test(text);
   }
 }

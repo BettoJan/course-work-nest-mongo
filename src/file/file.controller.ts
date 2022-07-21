@@ -1,34 +1,35 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { FileService } from './file.service';
-import { CreateFileDto } from './dto/create-file.dto';
-import { UpdateFileDto } from './dto/update-file.dto';
+import {
+  Controller,
+  HttpCode,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtAuthGuard } from 'src/auth/common/guards/jwt.guard';
+import { FilesService } from './file.service';
+import { MFile } from './mfile.class';
 
-@Controller('file')
-export class FileController {
-  constructor(private readonly fileService: FileService) {}
+@Controller('files')
+export class FilesController {
+  constructor(private readonly filesService: FilesService) {}
 
-  @Post()
-  create(@Body() createFileDto: CreateFileDto) {
-    return this.fileService.create(createFileDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.fileService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.fileService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFileDto: UpdateFileDto) {
-    return this.fileService.update(+id, updateFileDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.fileService.remove(+id);
+  @Post('upload')
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    const saveArray: MFile[] = [new MFile(file)];
+    if (file.mimetype.includes('image')) {
+      const buffer = await this.filesService.convertToWebP(file.buffer);
+      saveArray.push(
+        new MFile({
+          originalname: `${file.originalname.split('.')[0]}.webp`,
+          buffer,
+        }),
+      );
+    }
+    return this.filesService.saveFiles(saveArray);
   }
 }

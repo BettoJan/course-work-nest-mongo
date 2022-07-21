@@ -1,4 +1,4 @@
-import { prop } from '@typegoose/typegoose';
+import { index, prop } from '@typegoose/typegoose';
 import { Base, TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 
 export class registerAddress {
@@ -18,6 +18,7 @@ enum gender {
 // extends Base( +id )
 export interface DocumentModel extends Base {}
 // extends TimeStamps( +createdAt, +updatedAt )
+@index({ '$**': 'text' })
 export class DocumentModel extends TimeStamps {
   @prop()
   surname: string;

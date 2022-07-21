@@ -1,8 +1,11 @@
 import { IsNumber, IsString } from 'class-validator';
 
-export class FindProductDto {
+export class FindPassportDto {
   @IsString()
-  category: string;
+  sortType: string;
+
+  @IsNumber()
+  sortTypeDa: number;
 
   @IsNumber()
   limit: number;

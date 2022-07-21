@@ -5,6 +5,7 @@ import { InjectModel } from 'nestjs-typegoose';
 import { DocumentModel } from './documents.model';
 import { ModelType } from '@typegoose/typegoose/lib/types';
 import { USER_NOT_FOUND_ERROR } from './constants/user.constants';
+import { FindPassportDto } from './dto/find-document.dto';
 
 @Injectable()
 export class DocumentsService {
@@ -16,8 +17,19 @@ export class DocumentsService {
     return this.documentModel.create(dto);
   }
 
-  findAll() {
-    return this.documentModel.find();
+  findAll(dto: FindPassportDto) {
+    return this.documentModel
+      .aggregate([
+        {
+          $sort: {
+            [dto.sortType]: 1,
+          },
+        },
+        {
+          $limit: dto.limit,
+        },
+      ])
+      .exec();
   }
 
   findOne(id: number) {
@@ -36,5 +48,13 @@ export class DocumentsService {
 
   remove(id: number) {
     return this.documentModel.findOneAndDelete({ documentNumber: id });
+  }
+
+  async test(text: string) {
+    return this.documentModel
+      .find({
+        $text: { $search: text, $caseSensitive: false },
+      })
+      .exec();
   }
 }
